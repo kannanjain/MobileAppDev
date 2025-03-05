@@ -1,5 +1,6 @@
 package com.zybooks.journalapp
 //
+//
 import androidx.activity.compose.setContent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
