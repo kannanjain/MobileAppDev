@@ -72,7 +72,7 @@ fun EntryScreen(viewModel: EntryViewModel) {
                     // Placeholder for Image
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(9.dp))
 
                 Text(text = mood, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
             }
