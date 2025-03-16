@@ -1,6 +1,7 @@
 package com.zybooks.journalapp.ui
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.zIndex
 import androidx.compose.material.icons.filled.Camera // For filled style
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 
@@ -117,12 +119,22 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
     val cameraUri =
         FileProvider.getUriForFile(context, "${context.packageName}.provider", cameraFile)
 
+
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 viewModel.captureImage(cameraUri)
             }
         }
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            cameraLauncher.launch(cameraUri) // Launch the camera if permission is granted
+        } else {
+            Toast.makeText(context, "Camera permission denied!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -179,7 +191,14 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                         modifier = Modifier
                             .size(120.dp)
                             .background(Color.LightGray, RoundedCornerShape(8.dp))
-                            .clickable { cameraLauncher.launch(cameraUri) },
+                            .clickable {
+                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                                    cameraLauncher.launch(cameraUri)
+                                } else {
+                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                }
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         if (imageUri != null) {
