@@ -1,6 +1,5 @@
 package com.zybooks.journalapp
-//
-//
+
 import androidx.activity.compose.setContent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -56,6 +55,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.zybooks.journalapp.ui.CalendarViewModel
 import com.zybooks.journalapp.ui.HomeScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
