@@ -73,4 +73,21 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.3.0") // or the appropriate version you're using
     implementation("androidx.compose.material:material:1.3.0") // For core material components
 
+    var room_version = "2.6.1"
+
+    // Room components
+    implementation ("androidx.room:room-runtime:$room_version")
+    annotationProcessor ("androidx.room:room-compiler:$room_version")
+
+    // Optional - Kotlin support and coroutines support for Room
+    implementation ("androidx.room:room-ktx:$room_version")
+
+    // Optional - Test helpers
+    testImplementation ("androidx.room:room-testing:$room_version")
+
+    // LiveData
+    implementation ("androidx.lifecycle:lifecycle-livedata:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-common-java8:2.7.0")
+
 }
