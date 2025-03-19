@@ -31,62 +31,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-
-/*@Composable
-fun HomeScreen(viewModel: CalendarViewModel, navController: NavController) {
-    val today by viewModel.selectedDate.observeAsState(LocalDate.now())
-    //val savedDates by entryViewModel.savedDates.observeAsState(emptyList())
-
-    /*LaunchedEffect(Unit) {
-        entryViewModel.loadSavedDates()
-    }*/
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = today.format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy")).uppercase(),
-            fontSize = 12.sp,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Hello, Rebecca!",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = { navController.navigate("entry") },
-            colors = ButtonDefaults.buttonColors(Color(0xFFB0BEC5)),
-            shape = RoundedCornerShape(20.dp)
-        ) {
-            Text(text = "Start Today’s Journal", color = Color.White)
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        MonthSelector(viewModel)
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        CalendarGrid(today.monthValue, today.year, today, savedDates)
-    }
-}*/
-
-
-
 @Composable
 fun HomeScreen(viewModel: CalendarViewModel, navController: NavController) {
     val today by viewModel.selectedDate.observeAsState(LocalDate.now())
