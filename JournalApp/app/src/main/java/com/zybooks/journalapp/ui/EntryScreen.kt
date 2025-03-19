@@ -7,11 +7,15 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-//import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -20,94 +24,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
-import java.io.File
-import coil.compose.rememberAsyncImagePainter
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.zIndex
-import androidx.compose.material.icons.filled.Camera // For filled style
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-
-// Use Icons.Filled.Camera or Icons.Outlined.Camera
-
-/*@Composable
-fun EntryScreen(viewModel: EntryViewModel) {
-    val entryText by viewModel.entryText.observeAsState("Today I was feeling ...")
-    val mood by viewModel.mood.observeAsState("Happy 🙂")
-    val location by viewModel.location.observeAsState("123 Ave 📍")
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
-    ) {
-        // Journal Entry Box
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
-                .padding(20.dp)
-                .align(Alignment.Center), // Centers the journal box
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = location,
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-
-                Spacer(modifier = Modifier.height(100.dp))
-
-                Text(text = entryText, fontSize = 16.sp, color = Color.Black)
-            }
-        }
-
-        // Slanted Photo (Overlapping the journal entry)
-        Box(
-            modifier = Modifier
-                .size(170.dp)
-                .offset(x = 30.dp, y = 80.dp) // Move it lower for better overlap
-                .rotate(-15f) // Keeps the slant
-                .align(Alignment.TopStart) // Positions near the top
-                .background(Color.LightGray, RoundedCornerShape(10.dp)),
-                //.shadow(6.dp, RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .background(Color.Gray, RoundedCornerShape(8.dp))
-                ) {
-                    // Placeholder for Image
-                }
-
-                Spacer(modifier = Modifier.height(9.dp))
-
-                Text(text = mood, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-            }
-        }
-    }
-}*/
+import coil.compose.rememberAsyncImagePainter
+import java.io.File
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
     val context = LocalContext.current
+
+    // Observe all the necessary data from ViewModel
+    val currentDate by viewModel.currentDate.observeAsState(java.time.LocalDate.now())
     val entryText by viewModel.entryText.observeAsState("Today I was feeling ...")
     val mood by viewModel.mood.observeAsState("Happy 🙂")
     val location by viewModel.location.observeAsState("Add Location 📍")
     val imageUri by viewModel.imageUri.observeAsState()
+
+    // Effect that loads the entry for the selected date when this screen is shown
+    LaunchedEffect(Unit) {
+        viewModel.loadEntryForDate(currentDate)
+    }
 
     // File for captured image
     val cameraFile = remember {
@@ -116,9 +58,9 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
             "journal_image_${System.currentTimeMillis()}.jpg"
         )
     }
-    val cameraUri =
+    val cameraUri = remember {
         FileProvider.getUriForFile(context, "${context.packageName}.provider", cameraFile)
-
+    }
 
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -126,11 +68,12 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                 viewModel.captureImage(cameraUri)
             }
         }
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            cameraLauncher.launch(cameraUri) // Launch the camera if permission is granted
+            cameraLauncher.launch(cameraUri)
         } else {
             Toast.makeText(context, "Camera permission denied!", Toast.LENGTH_SHORT).show()
         }
@@ -145,7 +88,6 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
             }
         }
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -155,12 +97,13 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Back to Calendar Button
+            // Top Bar with date and Back button
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(
                     onClick = { navController.navigate("home") }
@@ -171,7 +114,24 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                         tint = Color.Gray
                     )
                 }
+
+                // Show the current date
+                Text(
+                    text = currentDate.format(DateTimeFormatter.ofPattern("EEEE, MMMM d")),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+
+                // Save button
+                IconButton(onClick = { viewModel.saveCurrentEntry() }) {
+                    Icon(
+                        imageVector = Icons.Default.Save,
+                        contentDescription = "Save Entry",
+                        tint = Color.Gray
+                    )
+                }
             }
+
             // Image & Mood Card (Floating, Tilted)
             Card(
                 modifier = Modifier
@@ -192,8 +152,11 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                             .size(120.dp)
                             .background(Color.LightGray, RoundedCornerShape(8.dp))
                             .clickable {
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                                    == PackageManager.PERMISSION_GRANTED) {
+                                if (ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.CAMERA
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
                                     cameraLauncher.launch(cameraUri)
                                 } else {
                                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -231,14 +194,12 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             // Journal Entry Box
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp) // Adjusted height
+                    .height(400.dp)
                     .padding(20.dp),
-
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
                 colors = CardDefaults.cardColors(Color(0xFFD0D6DE))
@@ -250,7 +211,9 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                         horizontalArrangement = Arrangement.End
                     ) {
                         Button(
-                            onClick = { locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
+                            onClick = {
+                                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                            },
                             colors = ButtonDefaults.buttonColors(Color(0xFF8C98A8)),
                             shape = RoundedCornerShape(20.dp)
                         ) {
@@ -274,7 +237,10 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                             placeholder = { Text("Write your journal entry here...") },
                             colors = TextFieldDefaults.colors(
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedContainerColor = Color.Transparent
+                                focusedContainerColor = Color.Transparent,
+                                cursorColor = Color.Gray,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
                             )
                         )
 
@@ -285,8 +251,7 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .padding(8.dp)
-                                .size(24.dp)
-                                .clickable { /* Open edit mode */ },
+                                .size(24.dp),
                             tint = Color.Gray
                         )
                     }
@@ -295,5 +260,4 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
         }
     }
 }
-
 
