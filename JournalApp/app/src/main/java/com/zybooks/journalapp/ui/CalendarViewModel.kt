@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.time.LocalDate
 
-
 class CalendarViewModel : ViewModel() {
     private val _selectedDate = MutableLiveData(LocalDate.now())
     val selectedDate: LiveData<LocalDate> = _selectedDate

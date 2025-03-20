@@ -1,17 +1,20 @@
 package com.zybooks.journalapp.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-//import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -31,75 +34,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.zIndex
 import androidx.compose.material.icons.filled.Camera // For filled style
+import androidx.compose.material.icons.filled.Share
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-
-// Use Icons.Filled.Camera or Icons.Outlined.Camera
-
-/*@Composable
-fun EntryScreen(viewModel: EntryViewModel) {
-    val entryText by viewModel.entryText.observeAsState("Today I was feeling ...")
-    val mood by viewModel.mood.observeAsState("Happy 🙂")
-    val location by viewModel.location.observeAsState("123 Ave 📍")
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
-    ) {
-        // Journal Entry Box
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
-                .padding(20.dp)
-                .align(Alignment.Center), // Centers the journal box
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = location,
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
-
-                Spacer(modifier = Modifier.height(100.dp))
-
-                Text(text = entryText, fontSize = 16.sp, color = Color.Black)
-            }
-        }
-
-        // Slanted Photo (Overlapping the journal entry)
-        Box(
-            modifier = Modifier
-                .size(170.dp)
-                .offset(x = 30.dp, y = 80.dp) // Move it lower for better overlap
-                .rotate(-15f) // Keeps the slant
-                .align(Alignment.TopStart) // Positions near the top
-                .background(Color.LightGray, RoundedCornerShape(10.dp)),
-                //.shadow(6.dp, RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .background(Color.Gray, RoundedCornerShape(8.dp))
-                ) {
-                    // Placeholder for Image
-                }
-
-                Spacer(modifier = Modifier.height(9.dp))
-
-                Text(text = mood, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-            }
-        }
-    }
-}*/
 
 @Composable
 fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
@@ -119,7 +56,6 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
     val cameraUri =
         FileProvider.getUriForFile(context, "${context.packageName}.provider", cameraFile)
 
-
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
@@ -130,7 +66,7 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            cameraLauncher.launch(cameraUri) // Launch the camera if permission is granted
+            cameraLauncher.launch(cameraUri)
         } else {
             Toast.makeText(context, "Camera permission denied!", Toast.LENGTH_SHORT).show()
         }
@@ -145,14 +81,15 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
             }
         }
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF8F8F8))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()), // Make entire content scrollable vertically
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Back to Calendar Button
@@ -172,13 +109,14 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                     )
                 }
             }
-            // Image & Mood Card (Floating, Tilted)
+            // Image & Mood Card
             Card(
                 modifier = Modifier
                     .size(180.dp, 200.dp)
                     .offset(x = 30.dp, y = 20.dp)
                     .rotate(-10f)
-                    .zIndex(1f),
+                    .zIndex(1f)
+                    .horizontalScroll(rememberScrollState()), // Make the Card scroll horizontally if needed
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(6.dp),
                 colors = CardDefaults.cardColors(Color(0xFFEFEFEF))
@@ -231,14 +169,12 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             // Journal Entry Box
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp) // Adjusted height
+                    .height(400.dp)
                     .padding(20.dp),
-
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
                 colors = CardDefaults.cardColors(Color(0xFFD0D6DE))
@@ -292,8 +228,28 @@ fun EntryScreen(viewModel: EntryViewModel, navController: NavController) {
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Share Button
+            Button(
+                onClick = {
+                    val shareText = "Journal Entry:\n\n$entryText\n\nMood: $mood\nLocation: $location"
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                        type = "text/plain"
+                    }
+                    context.startActivity(Intent.createChooser(shareIntent, "Share your journal entry"))
+                },
+                colors = ButtonDefaults.buttonColors(Color(0xFF8C98A8)),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.White)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Share Entry", fontSize = 14.sp)
+            }
         }
     }
 }
-
-

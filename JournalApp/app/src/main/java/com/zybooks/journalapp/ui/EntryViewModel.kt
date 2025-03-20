@@ -4,19 +4,13 @@ import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.location.Location
 import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
 import java.util.*
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 
@@ -84,8 +78,6 @@ class EntryViewModel(application: Application) : AndroidViewModel(application) {
             _location.value = "Location fetch failed 📍"
         }
     }
-
-
 
     fun captureImage(uri: Uri) {
         _imageUri.value = uri

@@ -2,12 +2,8 @@ package com.zybooks.journalapp
 
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-
 import com.zybooks.journalapp.ui.EntryViewModel
-
 import com.zybooks.journalapp.ui.EntryScreen
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.navigation.compose.NavHost

@@ -3,11 +3,10 @@ package com.zybooks.journalapp.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
@@ -17,11 +16,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -35,11 +31,13 @@ import java.util.Locale
 fun HomeScreen(viewModel: CalendarViewModel, navController: NavController) {
     val today by viewModel.selectedDate.observeAsState(LocalDate.now())
 
+    // Wrapping the content with a Scrollable modifier
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF8F8F8))
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()), // Make it scrollable
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(20.dp))
@@ -75,17 +73,6 @@ fun HomeScreen(viewModel: CalendarViewModel, navController: NavController) {
         Spacer(modifier = Modifier.height(20.dp))
 
         // Month Selector
-        /*val monthName = today.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        Text(
-            text = monthName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .background(Color.LightGray, RoundedCornerShape(8.dp))
-                .padding(8.dp)
-        )*/
         MonthSelector(viewModel)
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -94,7 +81,6 @@ fun HomeScreen(viewModel: CalendarViewModel, navController: NavController) {
         CalendarGrid(today.monthValue, today.year, today)
     }
 }
-
 
 @Composable
 fun CalendarGrid(month: Int, year: Int, today: LocalDate) {
@@ -173,7 +159,6 @@ fun MonthSelector(viewModel: CalendarViewModel) {
             text = today.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + today.year,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            //modifier = Modifier.padding(horizontal = 16.dp),
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .background(Color.LightGray, RoundedCornerShape(8.dp))
